@@ -19,7 +19,6 @@
         </div>
     @endif
 
-        <!-- START FORM -->
         <div class="my-3 p-3 bg-body rounded shadow-sm">
             <form>
                 <div class="mb-3 row">
@@ -43,36 +42,39 @@
                 <div class="mb-3 row">
                     <label class="col-sm-2 col-form-label"></label>
                     <div class="col-sm-10">
+                        <div class="d-flex">
                          @if ($updateData == false)
-                        <div class="col-sm-10"><button type="button" class="btn btn-primary" name="submit" wire:click="store()">SIMPAN</button>
-                    </div>
-                    @else
-                        <div class="col-sm-10"><button type="button" class="btn btn-primary" name="submit" wire:click="update()">UPDATE</button>
-                    </div>
-                    @endif
-                        <div class="col-sm-10"><button type="button" class="btn btn-secondary" name="submit" wire:click="clear()">CLEAR</button>
-                   
+                            <button type="button" class="btn btn-primary me-2" name="submit" wire:click="store()">SIMPAN</button>
+                         @else
+                            <button type="button" class="btn btn-primary me-2" name="submit" wire:click="update()">UPDATE</button>
+                         @endif
+                            <button type="button" class="btn btn-secondary" name="submit" wire:click="clear()">CLEAR</button>
+                        </div>
                     </div>
                 </div>
             </form>
         </div>
-        <!-- AKHIR FORM -->
+        ---
 
-        <!-- START DATA -->
-        
         <div class="my-3 p-3 bg-body rounded shadow-sm">
             <h1>Data Pegawai</h1>
             <div class="pb-3 pt-3">
-                <input type="text" class="form-control mb-3 w-25" placeholder="Search..." wire::model.live="katakunci">
+                <input type="text" class="form-control mb-3 w-25" placeholder="Search..." wire:model.live="katakunci">
             </div>
+
+            @if ($employee_selected_id)
+                <a wire:click="delete_confirmation('')" class="btn btn-danger btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">Del {{ count($employee_selected_id) }} data</a>
+            @endif
+
             {{ $dataEmployees->links() }}
-            <table class="table table-striped">
+            <table class="table table-striped table-sortable">
                 <thead>
                     <tr>
+                        <th class="col-md-1"></th> 
                         <th class="col-md-1">No</th>
-                        <th class="col-md-4">Nama</th>
-                        <th class="col-md-3">Email</th>
-                        <th class="col-md-2">Alamat</th>
+                        <th class="col-md-3 sort @if($sortColumn=='nama') {{ $sortDirection }}  @endif" wire:click="sort('nama')">Nama</th>
+                        <th class="col-md-3 sort @if($sortColumn=='email') {{ $sortDirection }}  @endif" wire:click="sort('email') ">Email</th>
+                        <th class="col-md-2 sort @if($sortColumn=='alamat') {{ $sortDirection }}  @endif" wire:click="sort ('alamat')">Alamat</th>
                         <th class="col-md-2">Aksi</th>
                     </tr>
                 </thead>
@@ -81,6 +83,7 @@
                     @foreach ($dataEmployees as $key=> $value)
                         
                     <tr>
+                        <td><input type="checkbox" wire:key="{{ $value->id }}" value="{{ $value->id }} " wire:model.live="employee_selected_id"></td>
                         <td>{{ $dataEmployees->firstItem() + $key }}</td>
                         <td>{{ $value->nama }}</td>
                         <td>{{ $value->email }}</td>
@@ -97,9 +100,9 @@
             </table>
             {{ $dataEmployees->links() }}
         </div>
-        <!-- AKHIR DATA -->
-        <!-- Modal -->
-        <div wire::ignore.self class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        ---
+        
+        <div wire:ignore.self class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
             <div class="modal-header">

@@ -17,6 +17,9 @@ class Employee extends Component
     public $updateData = false;
     public $employee_id;
     public $katakunci;
+    public $employee_selected_id = [];
+    public $sortDirection = 'asc';
+    public $sortColumn = 'nama';
     public function store (){
         $rules = [
             'nama'=> 'required',
@@ -42,6 +45,7 @@ class Employee extends Component
         $this-> nama = $data->nama;
         $this-> email = $data->email;
         $this-> alamat = $data->alamat;
+
         $this-> updateData = true;
         $this-> employee_id = $id;
     }
@@ -73,29 +77,53 @@ class Employee extends Component
 
         $this->updateData = false;
         $this->employee_id = '';
+        $this->employee_selected_id = [];
 
     }
 
     public function delete(){
-        $id = $this-> employee_id;
-        ModelsEmployee::find($id)->delete();
+        if($this->employee_id != ''){
+
+            $id = $this-> employee_id;
+            ModelsEmployee::find($id)->delete();
+        }
+
+        if(count($this->employee_selected_id)){
+            for($x = 0; $x < count($this->employee_selected_id); $x++){
+
+                ModelsEmployee::find($this->employee_selected_id[$x])->delete();
+                
+            }
+        }
+
         session()->flash('message','Data berhasil di Delete !');
         $this->clear();
     }
 
     public function delete_confirmation($id) {
-        $this->employee_id = $id;
+        if($id != ''){
+
+            $this->employee_id = $id;
+
+        }
+    }
+
+    public function sort($columnName){
+
+        $this->sortColumn = $columnName;
+        $this->sortDirection = $this->sortDirection ==  'asc' ? 'desc' : 'asc' ;
+
     }
 
     public function render()
     {
         if($this->katakunci != null){
 
-            $data = ModelsEmployee::where('nama', 'like', '%'.$this->katakunci.'%')->orwhere('email', 'like', '%'.$this->katakunci.'%')->orwhere('alamat', 'like', '%'.$this->katakunci.'%')->orderBy('nama', 'asc')->paginate(2);
+            $data = ModelsEmployee::where('nama', 'like', '%'.$this->katakunci.'%')->orwhere('email', 'like', '%'.$this->katakunci.'%')->orwhere('alamat', 'like', '%'.$this->katakunci.'%')->orderBy($this->sortColumn, $this->sortDirection)->paginate(2);
 
         }else{
             
-            $data = ModelsEmployee::orderBy('nama', 'asc')->paginate(2);
+            $data = ModelsEmployee::orderBy($this->sortColumn, $this->sortDirection)->paginate(2);
 
         }
         return view('livewire.employee', ['dataEmployees'=>$data]);
