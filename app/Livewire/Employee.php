@@ -16,6 +16,7 @@ class Employee extends Component
     public $alamat;
     public $updateData = false;
     public $employee_id;
+    public $katakunci;
     public function store (){
         $rules = [
             'nama'=> 'required',
@@ -74,9 +75,29 @@ class Employee extends Component
         $this->employee_id = '';
 
     }
+
+    public function delete(){
+        $id = $this-> employee_id;
+        ModelsEmployee::find($id)->delete();
+        session()->flash('message','Data berhasil di Delete !');
+        $this->clear();
+    }
+
+    public function delete_confirmation($id) {
+        $this->employee_id = $id;
+    }
+
     public function render()
     {
-        $data = ModelsEmployee::orderBy('nama', 'asc')->paginate(2);
+        if($this->katakunci != null){
+
+            $data = ModelsEmployee::where('nama', 'like', '%'.$this->katakunci.'%')->orwhere('email', 'like', '%'.$this->katakunci.'%')->orwhere('alamat', 'like', '%'.$this->katakunci.'%')->orderBy('nama', 'asc')->paginate(2);
+
+        }else{
+            
+            $data = ModelsEmployee::orderBy('nama', 'asc')->paginate(2);
+
+        }
         return view('livewire.employee', ['dataEmployees'=>$data]);
     }
 }
